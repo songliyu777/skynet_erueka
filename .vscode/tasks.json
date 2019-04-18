@@ -4,19 +4,34 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "build-mac",
             "type": "shell",
             "command": "make",
             "args": [
-                "-C", 
-                "skynet",
-                "linux"
-            ],
-            "group": "build",
-            "presentation": {
-                // Reveal the output only if unrecognized errors occur.
-                "reveal": "silent"
-            },
+                    "-C", 
+                    "skynet",
+                    "macosx"
+                ],
+                "group": "build",
+                "presentation": {
+                    // Reveal the output only if unrecognized errors occur.
+                    "reveal": "silent"
+                }
+        },
+        {
+               "label": "build-linux",
+                "type": "shell",
+                "command": "make",
+                "args": [
+                    "-C", 
+                    "skynet",
+                    "linux"
+                ],
+                "group": "build",
+                "presentation": {
+                    // Reveal the output only if unrecognized errors occur.
+                    "reveal": "silent"
+                }
         }
     ]
 }
