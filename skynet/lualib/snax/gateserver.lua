@@ -27,6 +27,8 @@ function gateserver.closeclient(fd)
 	end
 end
 
+---@param handler 这里是gate的handler
+---@return any
 function gateserver.start(handler)
 	assert(handler.message)
 	assert(handler.connect)

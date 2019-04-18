@@ -17,6 +17,11 @@ sp_invalid(int efd) {
 
 static int
 sp_create() {
+	/**
+	 * 创建一个epoll的句柄，size用来告诉内核这个监听的数目一共有多大。这个参数不同于select()中的第一个参数，给出最大监听的fd+1的值。
+	 * 需要注意的是，当创建好epoll句柄后，它就是会占用一个fd值，在linux下如果查看/proc/进程id/fd/，是能够看到这个fd的，
+	 * 所以在使用完epoll后，必须调用close()关闭，否则可能导致fd被耗尽。
+	*/
 	return epoll_create(1024);
 }
 

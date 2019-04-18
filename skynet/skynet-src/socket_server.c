@@ -109,7 +109,7 @@ struct socket_server {
 	volatile uint64_t time;
 	int recvctrl_fd;
 	int sendctrl_fd;
-	int checkctrl;
+	int checkctrl;	//创建控制 0 否 1 是
 	poll_fd event_fd;
 	int alloc_id;
 	int event_n;
@@ -339,11 +339,12 @@ struct socket_server *
 socket_server_create(uint64_t time) {
 	int i;
 	int fd[2];
-	poll_fd efd = sp_create();
+	poll_fd efd = sp_create(); //epoll创建
 	if (sp_invalid(efd)) {
 		fprintf(stderr, "socket-server: create event pool failed.\n");
 		return NULL;
 	}
+	//必须fock线程中，创建通道
 	if (pipe(fd)) {
 		sp_release(efd);
 		fprintf(stderr, "socket-server: create socket pair failed.\n");
@@ -364,7 +365,7 @@ socket_server_create(uint64_t time) {
 	ss->recvctrl_fd = fd[0];
 	ss->sendctrl_fd = fd[1];
 	ss->checkctrl = 1;
-
+	//初始化socket容器
 	for (i=0;i<MAX_SOCKET;i++) {
 		struct socket *s = &ss->slot[i];
 		s->type = SOCKET_TYPE_INVALID;
