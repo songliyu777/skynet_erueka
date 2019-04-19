@@ -17,7 +17,7 @@ struct socket_server;
 
 struct socket_message {
 	int id;
-	uintptr_t opaque;
+	uintptr_t opaque; //lua 的服务地址
 	int ud;	// for accept, ud is new connection id ; for data, ud is size of data 
 	char * data;
 };

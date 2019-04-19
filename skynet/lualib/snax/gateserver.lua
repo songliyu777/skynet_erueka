@@ -130,6 +130,7 @@ function gateserver.start(handler)
 		end
 	end
 
+	--定义一个table作为class 使用详细见 function skynet.register_protocol(class)
 	skynet.register_protocol {
 		name = "socket",
 		id = skynet.PTYPE_SOCKET,	-- PTYPE_SOCKET = 6

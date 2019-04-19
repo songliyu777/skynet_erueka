@@ -44,13 +44,13 @@ struct skynet_context {
 	void * instance;
 	struct skynet_module * mod;
 	void * cb_ud;
-	skynet_cb cb;
+	skynet_cb cb;	//设置回调 skynet_callback
 	struct message_queue *queue;
 	FILE * logfile;
 	uint64_t cpu_cost;	// in microsec
 	uint64_t cpu_start;	// in microsec
 	char result[32];
-	uint32_t handle;
+	uint32_t handle;	// lua 服务地址
 	int session_id;
 	int ref;
 	int message_count;

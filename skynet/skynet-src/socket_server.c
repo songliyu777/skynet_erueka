@@ -1049,7 +1049,24 @@ has_cmd(struct socket_server *ss) {
 	int retval;
 
 	FD_SET(ss->recvctrl_fd, &ss->rfds);
-
+	// int select(int nfds, fd_set *readset, fd_set *writeset,fd_set* exceptset, struct tim *timeout);
+	// 参数：
+    // nfds   
+    // 需要检查的文件描述字个数（即检查到fd_set的第几位），数值应该比三组fd_set中所含的最大fd值更大，一般设为三组fd_set中所含的最大fd值加1（如在readset,writeset,exceptset中所含最大的fd为5，则nfds=6，因为fd是从0开始的）。设这个值是为提高效率，使函数不必检查fd_set的所有1024位。
+    // readset  
+    // 用来检查可读性的一组文件描述字。
+    // writeset
+    // 用来检查可写性的一组文件描述字。
+    // exceptset
+    // 用来检查是否有异常条件出现的文件描述字。(注：错误不包括在异常条件之内)
+    // timeout
+    // 用于描述一段时间长度，如果在这个时间内，需要监视的描述符没有事件发生则函数返回，返回值为0。
+    // 有三种可能：
+    //   1.timeout=NULL（阻塞：select将一直被阻塞，直到某个文件描述符上发生了事件）
+    //   2.timeout所指向的结构设为非零时间（等待固定时间：如果在指定的时间段里有事件发生或者时间耗尽，函数均返回）
+    //   3.timeout所指向的结构，时间设为0（非阻塞：仅检测描述符集合的状态，然后立即返回，并不等待外部事件的发生）
+	// 返回值：    
+    // 	返回对应位仍然为1的fd的总数。
 	retval = select(ss->recvctrl_fd+1, &ss->rfds, NULL, NULL, &tv);
 	if (retval == 1) {
 		return 1;
@@ -1411,7 +1428,10 @@ clear_closed_event(struct socket_server *ss, struct socket_message * result, int
 	}
 }
 
-// return type
+/**
+ * epoll处理流程
+ * return type
+*/
 int 
 socket_server_poll(struct socket_server *ss, struct socket_message * result, int * more) {
 	for (;;) {
