@@ -77,6 +77,8 @@ forward_message(int type, bool padding, struct socket_message * result) {
 
 /**
  * epoll处理逻辑关键
+ * forward 所对应的消息类型，会对应到传到lua里
+ * 参考lua-netpacketext.c包处理
 */
 int 
 skynet_socket_poll() {

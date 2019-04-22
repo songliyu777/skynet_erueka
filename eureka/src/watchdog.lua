@@ -2,20 +2,20 @@ local skynet = require "skynet"
 
 local CMD = {}
 local SOCKET = {}
-local gate
+local server
 local agent = {}
 
 function SOCKET.open(fd, addr)
     skynet.error("New client from : " .. addr)
     agent[fd] = skynet.newservice("agent")
-    skynet.call(agent[fd], "lua", "start", {gate = gate, client = fd, watchdog = skynet.self()})
+    skynet.call(agent[fd], "lua", "start", {server = server, client = fd, watchdog = skynet.self()})
 end
 
 local function close_agent(fd)
     local a = agent[fd]
     agent[fd] = nil
     if a then
-        skynet.call(gate, "lua", "kick", fd)
+        skynet.call(server, "lua", "kick", fd)
         -- disconnect never return
         skynet.send(a, "lua", "disconnect")
     end
@@ -40,7 +40,7 @@ function SOCKET.data(fd, msg)
 end
 
 function CMD.start(conf)
-    skynet.call(gate, "lua", "open", conf)
+    skynet.call(server, "lua", "open", conf)
 end
 
 function CMD.close(fd)
@@ -63,6 +63,6 @@ skynet.start(
             end
         )
 
-        gate = skynet.newservice("gate")
+        server = skynet.newservice("tcpservice")
     end
 )

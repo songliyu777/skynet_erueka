@@ -71,7 +71,7 @@ skynet.register_protocol {
 
 function CMD.start(conf)
 	local fd = conf.client
-	local gate = conf.gate
+	local server = conf.server
 	WATCHDOG = conf.watchdog
 	-- slot 1,2 set at main.lua
 	host = sprotoloader.load(1):host "package"
@@ -84,7 +84,7 @@ function CMD.start(conf)
 	end)
 
 	client_fd = fd
-	skynet.call(gate, "lua", "forward", fd)
+	skynet.call(server, "lua", "forward", fd)
 end
 
 function CMD.disconnect()
