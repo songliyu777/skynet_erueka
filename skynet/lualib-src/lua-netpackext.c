@@ -101,6 +101,7 @@ find_uncomplete(struct queue *q, int fd) {
 		q->hash[h] = uc->next;
 		return uc;
 	}
+	//hash冲突，可能不同fd对应同一个slot，根据id == fd区分
 	struct uncomplete * last = uc;
 	while (last->next) {
 		uc = last->next;
@@ -116,8 +117,9 @@ find_uncomplete(struct queue *q, int fd) {
 static struct queue *
 get_queue(lua_State *L) {
 	struct queue *q = lua_touserdata(L,1);
+	//栈顶是空
 	if (q == NULL) {
-		q = lua_newuserdata(L, sizeof(struct queue));
+		q = lua_newuserdata(L, sizeof(struct queue));//这时候栈排列是 nil queue *
 		q->cap = QUEUESIZE;
 		q->head = 0;
 		q->tail = 0;
@@ -125,7 +127,7 @@ get_queue(lua_State *L) {
 		for (i=0;i<HASHSIZE;i++) {
 			q->hash[i] = NULL;
 		}
-		lua_replace(L, 1);
+		lua_replace(L, 1);//执行之后就变成 queue *
 	}
 	return q;
 }
@@ -226,7 +228,10 @@ close_uncomplete(lua_State *L, int fd) {
 
 static int
 filter_data_(lua_State *L, int fd, uint8_t * buffer, int size) {
+	//获取lua传入的队列，tcpserver.lua 里
+	//netpackext.filter( queue, msg, sz)
 	struct queue *q = lua_touserdata(L,1);
+	//查找未完成的包，粘包过程
 	struct uncomplete * uc = find_uncomplete(q, fd);
 	if (uc) {
 		// fill uncomplete
