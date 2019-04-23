@@ -135,6 +135,7 @@ function tcpserver.start(handler)
 		name = "tcpserver",
 		id = skynet.PTYPE_SOCKET,	-- PTYPE_SOCKET = 6
 		unpack = function ( msg, sz )
+			--这里要处理下如果包超大小了返回错误码处理
 			return netpackext.filter( queue, msg, sz)
 		end,
 		dispatch = function (_, _, q, type, ...)

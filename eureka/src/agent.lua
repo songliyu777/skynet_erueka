@@ -43,10 +43,15 @@ local function send_package(pack)
 	socket.write(client_fd, package)
 end
 
+function CMD.send_test(msg)
+	socket.write(client_fd, msg)
+end
+
 skynet.register_protocol {
 	name = "client",
 	id = skynet.PTYPE_CLIENT,
 	unpack = function (msg, sz)
+		--这里是收到的消息进行处理
 		return host:dispatch(msg, sz)
 	end,
 	dispatch = function (fd, _, type, ...)

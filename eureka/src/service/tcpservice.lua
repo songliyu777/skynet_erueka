@@ -17,12 +17,19 @@ function handler.open(source, conf)
 end
 
 function handler.message(fd, msg, sz)
+	-- local str = skynet.tostring(msg, sz);
+	-- for i = 1, #str do
+	-- 	local p = str:byte(i)
+	-- 	print(string.format("%X", p))
+	-- 	-- body
+	-- end
 	-- recv a package, forward it
 	local c = connection[fd]
 	local agent = c.agent
 	if agent then
 		-- It's safe to redirect msg directly , tcpserver framework will not free msg.
-		skynet.redirect(agent, c.client, "client", fd, msg, sz)
+		--skynet.redirect(agent, c.client, "client", fd, msg, sz)
+		skynet.send(agent, "lua", "send_test", skynet.tostring(msg, sz))
 	else
 		skynet.send(watchdog, "lua", "socket", "data", fd, skynet.tostring(msg, sz))
 		-- skynet.tostring will copy msg to a string, so we must free msg here.

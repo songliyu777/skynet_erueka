@@ -1,6 +1,6 @@
 local skynet = require "skynet"
 local sprotoloader = require "sprotoloader"
-local max_client = 64
+local max_client = 200
 
 skynet.start(function()
 	skynet.error("Server start")
@@ -12,10 +12,10 @@ skynet.start(function()
 	-- skynet.newservice("simpledb")
 	local watchdog = skynet.newservice("watchdog")
 	skynet.call(watchdog, "lua", "start", {
-		port = 8888,
+		port = 7000,
 		maxclient = max_client,
 		nodelay = true,
 	})
-	skynet.error("Watchdog listen on", 8888)
+	skynet.error("Watchdog listen on", 7000)
 	skynet.exit()
 end)
