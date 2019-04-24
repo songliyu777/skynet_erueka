@@ -1,6 +1,6 @@
 local skynet = require "skynet"
 local sprotoloader = require "sprotoloader"
-local max_client = 200
+local max_client = 1024
 
 skynet.start(function()
 	skynet.error("Server start")
