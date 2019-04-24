@@ -30,6 +30,7 @@ function handler.message(fd, msg, sz)
 		-- It's safe to redirect msg directly , tcpserver framework will not free msg.
 		--skynet.redirect(agent, c.client, "client", fd, msg, sz)
 		skynet.send(agent, "lua", "send_test", skynet.tostring(msg, sz))
+		skynet.trash(msg,sz)
 	else
 		skynet.send(watchdog, "lua", "socket", "data", fd, skynet.tostring(msg, sz))
 		-- skynet.tostring will copy msg to a string, so we must free msg here.
