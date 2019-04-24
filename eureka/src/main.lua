@@ -17,5 +17,6 @@ skynet.start(function()
 		nodelay = true,
 	})
 	skynet.error("Watchdog listen on", 7000)
+	local simpleweb = skynet.newservice("net/simpleweb")
 	skynet.exit()
 end)
