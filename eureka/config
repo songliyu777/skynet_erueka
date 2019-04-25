@@ -13,3 +13,4 @@ standalone = "0.0.0.0:2013"
 -- snax_interface_g = "snax_g"
 cpath = root.."cservice/?.so"
 -- daemon = "./skynet.pid"
+log_level = 0 -- 0 debug 1 info 2 warning 3 error

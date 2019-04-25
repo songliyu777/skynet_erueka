@@ -25,6 +25,8 @@ local function request(interface, method, host, url, recvheader, header, content
 
 	if content then
 		local data = string.format("%s %s HTTP/1.1\r\n%scontent-length:%d\r\n\r\n", method, url, header_content, #content)
+		print(data)
+		print(content)
 		write(data)
 		write(content)
 	else

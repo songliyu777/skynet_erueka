@@ -1,3 +1,5 @@
+local skynet = require "skynet"
+local logger = require "logger"
 local client = require 'eureka.client'
 
 local _register, _renew
@@ -11,11 +13,11 @@ _register = function(premature)
     local err
     eurekaclient, err = client:new(eurekaserver.host, eurekaserver.port, eurekaserver.uri, eurekaserver.auth)
     if not eurekaclient then
-        ngx.log(ngx.ALERT, ('can not create client instance %s : %s'):format(instance.instance.instanceId, err))
+        logger.error(('can not create client instance %s : %s'):format(instance.instance.instanceId, err))
     else
         local ok, err = eurekaclient:register(instance.instance.app, instance)
         if not ok then
-            ngx.log(ngx.ALERT, ('can not register instance %s : %s'):format(instance.instance.instanceId, err))
+            logger.error(('can not register instance %s : %s'):format(instance.instance.instanceId, err))
         end
     end
 end
@@ -40,9 +42,19 @@ local _M = {
 function _M.run(self, _eurekaserver, _instance)
     instance = _instance
     eurekaserver = _eurekaserver
+    --print(_eurekaserver.uri)
     timeval = tonumber(eurekaserver.timeval) or 30
-    ngx.timer.at(0, _register)
-    ngx.timer.at(timeval, _renew)
+    skynet.start(function()
+        _register(false)
+        -- function idle()
+        --     logger.debug("in 30", skynet.now())
+        --     --print("in 30", skynet.now())
+        --     skynet.timeout(100, idle)
+        -- end
+        -- idle()
+    end)
+    -- ngx.timer.at(0, _register)
+    -- ngx.timer.at(timeval, _renew)
 end
 
 return _M

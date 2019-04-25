@@ -6,7 +6,7 @@ local setmetatable = setmetatable
 local tonumber = tonumber
 local byte = string.byte
 local type = type
-local null = ngx.null
+local null = nil
 
 
 local ok, new_tab = pcall(require, "table.new")
@@ -52,9 +52,14 @@ local function request(eurekaclient, method, path, query, body)
     if not httpc then
         return nil, 'not initialized'
     end
+ 
+    print(method)
 
-    print("请求：")
-    return nil, 'not initialized'
+ 
+    local statuscode, body = httpc.request(method, host, path, false, headers, body)
+    print(statuscode..":"..body)
+	return statuscode, body
+
     -- return httpc:request_uri(host, {
     --     version = 1.1,
     --     method = method,
