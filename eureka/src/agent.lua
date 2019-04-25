@@ -134,14 +134,12 @@ function CMD.start(conf)
     -- slot 1,2 set at main.lua
     host = sprotoloader.load(1):host "package"
     send_request = host:attach(sprotoloader.load(2))
-    skynet.fork(
-        function()
-            while true do
-                send_package(send_request "heartbeat")
-                skynet.sleep(500)
-            end
+    skynet.fork(function()
+        while true do
+            send_package(send_request "heartbeat")
+            skynet.sleep(500)
         end
-    )
+    end)
 
     client_fd = fd
     skynet.call(server, "lua", "forward", fd)

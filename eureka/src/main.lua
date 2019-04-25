@@ -3,7 +3,7 @@ local sprotoloader = require "sprotoloader"
 local max_client = 1024
 
 skynet.start(function()
-	skynet.error("Server start")
+	skynet.error("Server start pid:".. skynet.getpid())
 	skynet.uniqueservice("protoloader")
 	if not skynet.getenv "daemon" then
 		local console = skynet.newservice("console")
@@ -17,6 +17,6 @@ skynet.start(function()
 		nodelay = true,
 	})
 	skynet.error("Watchdog listen on", 7000)
-	local simpleweb = skynet.newservice("net/simpleweb")
+	local httpservice = skynet.newservice("httpservice")
 	skynet.exit()
 end)

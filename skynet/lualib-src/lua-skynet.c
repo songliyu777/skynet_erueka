@@ -12,6 +12,7 @@
 #include <string.h>
 #include <assert.h>
 #include <inttypes.h>
+#include <unistd.h>
 
 #include <time.h>
 
@@ -412,6 +413,12 @@ lhpc(lua_State *L) {
 	return 1;
 }
 
+static int
+lgetpid(lua_State *L) {
+	lua_pushinteger(L, getpid());
+	return 1;
+}
+
 #define MAX_LEVEL 3
 
 struct source_info {
@@ -506,6 +513,7 @@ luaopen_skynet_core(lua_State *L) {
 		{ "trash" , ltrash },
 		{ "now", lnow },
 		{ "hpc", lhpc },	// getHPCounter
+		{ "getpid", lgetpid },
 		{ NULL, NULL },
 	};
 

@@ -2,6 +2,7 @@
     "files.associations": {
         "signal.h": "c",
         "skynet_malloc.h": "c",
-        "skynet.h": "c"
+        "skynet.h": "c",
+        "skynet_daemon.h": "c"
     }
 }

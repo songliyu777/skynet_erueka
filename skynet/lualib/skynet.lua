@@ -647,6 +647,7 @@ function skynet.harbor(addr)
 	return c.harbor(addr)
 end
 
+skynet.getpid = c.getpid
 skynet.error = c.error
 skynet.tracelog = c.trace
 
