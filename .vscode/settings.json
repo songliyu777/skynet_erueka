@@ -3,6 +3,7 @@
         "signal.h": "c",
         "skynet_malloc.h": "c",
         "skynet.h": "c",
-        "skynet_daemon.h": "c"
+        "skynet_daemon.h": "c",
+        "curl.h": "c"
     }
 }

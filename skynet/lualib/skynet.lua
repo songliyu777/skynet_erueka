@@ -650,6 +650,7 @@ end
 skynet.getpid = c.getpid
 skynet.error = c.error
 skynet.tracelog = c.trace
+skynet.gethostid = c.gethostid
 
 -- true: force on
 -- false: force off

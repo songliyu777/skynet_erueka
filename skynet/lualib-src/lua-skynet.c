@@ -419,6 +419,12 @@ lgetpid(lua_State *L) {
 	return 1;
 }
 
+static int
+lgethostid(lua_State *L) {
+	lua_pushinteger(L, gethostid());
+	return 1;
+}
+
 #define MAX_LEVEL 3
 
 struct source_info {
@@ -514,6 +520,7 @@ luaopen_skynet_core(lua_State *L) {
 		{ "now", lnow },
 		{ "hpc", lhpc },	// getHPCounter
 		{ "getpid", lgetpid },
+		{ "gethostid", lgethostid},
 		{ NULL, NULL },
 	};
 

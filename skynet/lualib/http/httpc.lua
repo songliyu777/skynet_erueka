@@ -6,8 +6,10 @@ local dns = require "skynet.dns"
 local string = string
 local table = table
 
+---@type class
 local httpc = {}
 
+---@return code|body
 local function request(interface, method, host, url, recvheader, header, content)
 	local read = interface.read
 	local write = interface.write
@@ -25,8 +27,6 @@ local function request(interface, method, host, url, recvheader, header, content
 
 	if content then
 		local data = string.format("%s %s HTTP/1.1\r\n%scontent-length:%d\r\n\r\n", method, url, header_content, #content)
-		print(data)
-		print(content)
 		write(data)
 		write(content)
 	else
@@ -135,7 +135,6 @@ local function gen_interface(protocol, fd)
 		error(string.format("Invalid protocol: %s", protocol))
 	end
 end
-
 
 function httpc.request(method, host, url, recvheader, header, content)
 	local protocol

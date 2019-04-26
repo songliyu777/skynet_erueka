@@ -14,6 +14,7 @@ if not ok then
     new_tab = function (narr, nrec) return {} end
 end
 
+---@class _M
 local _M = new_tab(0, 16)
 
 _M._VERSION = '0.3.1'
@@ -47,29 +48,16 @@ local function request(eurekaclient, method, path, query, body)
         end
         headers['Content-Type'] = 'application/json'
     end
-
     local httpc = eurekaclient.httpc
     if not httpc then
         return nil, 'not initialized'
     end
- 
-    print(method)
 
- 
     local statuscode, body = httpc.request(method, host, path, false, headers, body)
-    print(statuscode..":"..body)
 	return statuscode, body
-
-    -- return httpc:request_uri(host, {
-    --     version = 1.1,
-    --     method = method,
-    --     headers = headers,
-    --     path = path,
-    --     query = query,
-    --     body = body,
-    -- })
 end
 
+---@return _M|err
 function _M.new(self, host, port, uri, auth)
     if not host or 'string' ~= type(host) or 1 > #host then
         return nil, 'host required'
@@ -227,16 +215,16 @@ function _M.heartBeat(self, appid, instanceid)
     if not instanceid or 'string' ~= type(instanceid) or 1 > #instanceid then
         return nil, 'instanceid required'
     end
-    local res, err = request(self, 'PUT', '/apps/' .. appid .. '/' .. instanceid)
-    if not res then
-        return nil, err
+    local statuscode, body = request(self, 'PUT', '/apps/' .. appid .. '/' .. instanceid)
+    if not statuscode then
+        return nil, body
     end
-    if 200 == res.status then
-        return true, res.body
-    elseif 404 == res.status then
-        return null, res.body
+    if 200 == statuscode then
+        return true, body
+    elseif 404 == statuscode then
+        return nil, body
     else
-        return false, ('status is %d : %s'):format(res.status, res.body)
+        return false, ('status is %d : %s'):format(statuscode, body)
     end
 end
 
@@ -330,14 +318,14 @@ function _M.register(self, appid, instancedata)
     if not instancedata or 'table' ~= type(instancedata) then
         return nil, 'instancedata required'
     end
-    local res, err = request(self, 'POST', '/apps/' .. appid, nil, instancedata)
-    if not res then
-        return nil, err
+    local statuscode, body= request(self, 'POST', '/apps/' .. appid, nil, instancedata)
+    if not statuscode then
+        return nil, body
     end
-    if 204 == res.status then
-        return true, res.body
+    if 204 == statuscode then
+        return true, body
     else
-        return false, ('status is %d : %s'):format(res.status, res.body)
+        return false, ('status is %d : %s'):format(statuscode, body)
     end
 end
 
