@@ -8,6 +8,7 @@ local byte = string.byte
 local type = type
 local null = nil
 
+local webclient
 
 local ok, new_tab = pcall(require, "table.new")
 if not ok then
@@ -53,8 +54,10 @@ local function request(eurekaclient, method, path, query, body)
         return nil, 'not initialized'
     end
 
-    local statuscode, body = httpc.request(method, host, path, false, headers, body)
-	return statuscode, body
+    -- local statuscode, body = httpc.request(method, host, path, false, headers, body)
+    -- return statuscode, body
+    local url = host..path
+    local isok,response,info = skynet.call(webclient, "lua", "request", url, headers, nil, body, true)
 end
 
 ---@return _M|err
@@ -79,6 +82,7 @@ function _M.new(self, host, port, uri, auth)
             ))
         )
     end
+    webclient = skynet.newservice("webclient")
     -- local httpc = httpc
     -- if not httpc then
     --     return nil, 'failed to init http client instance : ' .. err
