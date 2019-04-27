@@ -5,8 +5,8 @@ local handler = {}
 
 local mode, protocol = ...
 local protocol = protocol or "http"
-local ip = "0.0.0.0"
-local port = 8001
+local ip = skynet.getenv("http_ip") or "0.0.0.0" 
+local port = skynet.getenv("http_port") or 80
 
 if mode == "agent" then
     httpserver.newagent(protocol, handler)

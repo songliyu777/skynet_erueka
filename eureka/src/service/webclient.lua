@@ -13,7 +13,7 @@ local function resopnd(request, result)
         return
     end
     local content, errmsg = webclient:get_respond(request.req) 
-    local info = webclient:get_info(request.req) 
+    local info = webclient:get_info(request.req)
     if result == 0 then
         request.response(true, true, content, info)
     else
@@ -28,13 +28,12 @@ local function query()
             local request = requests[finish_key];
             assert(request)
             xpcall(resopnd, function() skynet.error(debug.traceback()) end, request, result)
-
             webclient:remove_request(request.req)
             requests[finish_key] = nil
         else
             skynet.sleep(1)
         end
-    end 
+    end
     requests = nil
 end
 
@@ -91,11 +90,11 @@ local function request(method, url, headers, get, post, no_reply)
     end
     assert(key)
 
-    local response = nil
-    if not no_reply then
-        response = skynet.response()
-    end
-
+    -- local response = nil
+    -- if not no_reply then
+    --     response = skynet.response()
+    -- end
+    local response = skynet.response()
     if requests == nil then
         requests = {}
         skynet.fork(query)

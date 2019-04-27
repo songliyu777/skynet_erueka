@@ -323,7 +323,7 @@ function _M.register(self, appid, instancedata)
     if not instancedata or 'table' ~= type(instancedata) then
         return nil, 'instancedata required'
     end
-    local statuscode, body= request(self, 'POST', '/apps/' .. appid, nil, instancedata)
+    local statuscode, body = request(self, 'POST', '/apps/' .. appid, nil, instancedata)
     if not statuscode then
         return nil, body
     end
