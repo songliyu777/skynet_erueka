@@ -6,8 +6,10 @@ local _register, _renew
 local eurekaclient, eurekaserver, instance, timeval
 
 _register = function()
-    local eclient, err = client:new(eurekaserver.host, eurekaserver.port, eurekaserver.uri, eurekaserver.auth)
-    eurekaclient = eclient
+    if not eurekaclient then
+        local eclient, err = client:new(eurekaserver.host, eurekaserver.port, eurekaserver.uri, eurekaserver.auth)
+        eurekaclient = eclient
+    end
     if not eurekaclient then
         logger.error(("can not create client instance %s : %s"):format(instance.instance.instanceId, err))
     else

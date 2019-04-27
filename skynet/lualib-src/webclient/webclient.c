@@ -195,7 +195,7 @@ static size_t write_callback(char* buffer, size_t block_size, size_t count, void
     return length;
 }
 
-static struct webrequest* webclient_realrequest(struct webclient* webclient, const char* url, struct curl_httppost* http_post, const char* post_field, size_t post_field_len, long connect_timeout_ms)
+static struct webrequest* webclient_realrequest(struct webclient* webclient, const char* method, const char* url, struct curl_httppost* http_post, const char* post_field, size_t post_field_len, long connect_timeout_ms)
 {
     struct webrequest* webrequest = (struct webrequest*)malloc(sizeof(*webrequest));
     memset(webrequest, 0, sizeof(*webrequest));
@@ -213,6 +213,7 @@ static struct webrequest* webclient_realrequest(struct webclient* webclient, con
     curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, webrequest->error);
     curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT_MS, connect_timeout_ms);
     curl_easy_setopt(handle, CURLOPT_URL, url);
+    curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, method);
 
     if (http_post) {
         webrequest->http_post = http_post;
@@ -311,10 +312,12 @@ static int webclient_request(lua_State* l)
     struct webclient* webclient = (struct webclient*)luaL_checkudata(l, 1, LUA_WEB_CLIENT_MT);
     if (!webclient)
         return luaL_argerror(l, 1, "parameter self invalid");
-
-    const char* url = lua_tostring(l, 2);
+    const char* method = lua_tostring(l, 2);
+    if (!method)
+        return luaL_argerror(l, 2, "parameter method invalid");
+    const char* url = lua_tostring(l, 3);
     if (!url)
-        return luaL_argerror(l, 2, "parameter url invalid");
+        return luaL_argerror(l, 3, "parameter url invalid");
 
     struct curl_httppost* http_post = NULL;
     const char* postdata = NULL;
@@ -322,22 +325,22 @@ static int webclient_request(lua_State* l)
     long connect_timeout_ms = 5000;
 
     int top = lua_gettop(l);
-    if (top > 2 && lua_istable(l, 3)) {
-        http_post = webclient_tohttppost(l, 3);
+    if (top > 3 && lua_istable(l, 4)) { //判断是否form
+        http_post = webclient_tohttppost(l, 4);
         if (!http_post)
-            return luaL_argerror(l, 3, "parameter post_form invalid");
+            return luaL_argerror(l, 4, "parameter post_form invalid");
     }
-    else if (top > 2 && lua_isstring(l, 3)) {
-        postdata = lua_tolstring(l, 3, &postdatalen);
+    else if (top > 3 && lua_isstring(l, 4)) {
+        postdata = lua_tolstring(l, 4, &postdatalen);
     }
 
-    if (top > 3 && lua_isnumber(l, 4)) {
-        connect_timeout_ms = (long)lua_tointeger(l, 4);
+    if (top > 4 && lua_isnumber(l, 5)) {
+        connect_timeout_ms = (long)lua_tointeger(l, 5);
         if (connect_timeout_ms < 0)
-            return luaL_argerror(l, 4, "parameter connect_timeout_ms invalid");
+            return luaL_argerror(l, 5, "parameter connect_timeout_ms invalid");
     }
 
-    struct webrequest* webrequest = webclient_realrequest(webclient, url, http_post, postdata, postdatalen, connect_timeout_ms);
+    struct webrequest* webrequest = webclient_realrequest(webclient, method, url, http_post, postdata, postdatalen, connect_timeout_ms);
     if (!webrequest)
         return 0;
 

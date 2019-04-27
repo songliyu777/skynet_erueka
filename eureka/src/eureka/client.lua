@@ -49,15 +49,18 @@ local function request(eurekaclient, method, path, query, body)
         end
         headers['Content-Type'] = 'application/json'
     end
-    local httpc = eurekaclient.httpc
-    if not httpc then
-        return nil, 'not initialized'
-    end
-
+    -- local httpc = eurekaclient.httpc
+    -- if not httpc then
+    --     return nil, 'not initialized'
+    -- end
     -- local statuscode, body = httpc.request(method, host, path, false, headers, body)
     -- return statuscode, body
     local url = host..path
-    local isok,response,info = skynet.call(webclient, "lua", "request", url, headers, nil, body, true)
+    local isok, response, info = skynet.call(webclient, "lua", "request", method, url, headers, nil, body, false)
+    if isok then 
+        return info.response_code, response
+    end
+    return nil, response
 end
 
 ---@return _M|err
@@ -82,11 +85,9 @@ function _M.new(self, host, port, uri, auth)
             ))
         )
     end
+
     webclient = skynet.newservice("webclient")
-    -- local httpc = httpc
-    -- if not httpc then
-    --     return nil, 'failed to init http client instance : ' .. err
-    -- end
+
     return setmetatable({
         host = host,
         port = port,

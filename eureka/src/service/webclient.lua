@@ -12,10 +12,8 @@ local function resopnd(request, result)
     if not request.response then
         return
     end
-
     local content, errmsg = webclient:get_respond(request.req) 
     local info = webclient:get_info(request.req) 
-     
     if result == 0 then
         request.response(true, true, content, info)
     else
@@ -29,7 +27,6 @@ local function query()
         if finish_key then
             local request = requests[finish_key];
             assert(request)
-
             xpcall(resopnd, function() skynet.error(debug.traceback()) end, request, result)
 
             webclient:remove_request(request.req)
@@ -49,9 +46,16 @@ end
 -- @bool[opt] no_reply 使用skynet.call则要设置为nil或false，使用skynet.send则要设置为true
 -- @treturn bool 请求是否成功
 -- @treturn string 当成功时，返回内容，当失败时，返回出错原因
+-- @treturn info table
+-- {
+--     content_length = 0,
+--     ip = "127.0.0.1",
+--     port = 35292,
+--     response_code = 204
+-- }
 -- @usage skynet.call(webclient, "lua", "request", "http://www.dpull.com")
 -- @usage skynet.send(webclient, "lua", "request", "http://www.dpull.com", nil, nil, true)
-local function request(url, headers, get, post, no_reply)
+local function request(method, url, headers, get, post, no_reply)
     if get then
         local i = 0
         for k, v in pairs(get) do
@@ -74,7 +78,7 @@ local function request(url, headers, get, post, no_reply)
         post = table.concat(data , "&")
     end   
 
-    local req, key = webclient:request(url, post)
+    local req, key = webclient:request(method, url, post)
 
     if headers and type(headers) == "table" then
         for k,v in pairs(headers) do
