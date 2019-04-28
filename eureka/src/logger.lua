@@ -1,5 +1,6 @@
 local skynet = require "skynet"
 
+---@class logger
 local logger = {}
 local log_level_define = {debug = 0, info = 1, warning = 2, error = 3}
 local log_level = tonumber(skynet.getenv "log_level")

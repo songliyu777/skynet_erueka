@@ -810,4 +810,16 @@ debug.init(skynet, {
 	suspend = suspend,
 })
 
+function skynet.getlocalip()
+    local str = (io.popen "ip addr"):read "*a"
+    local fun = function(a)
+        local str = string.sub(a, 1, string.find(a, "/") - 1)
+        if str ~= "127.0.0.1" then
+            ip = str
+        end
+    end
+    str = string.gsub(str, "%d*%.%d*%.%d*%.%d*/", fun)
+    return ip
+end
+
 return skynet
