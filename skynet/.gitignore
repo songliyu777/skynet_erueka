@@ -4,7 +4,7 @@
 /skynet.pid
 3rd/lua/lua
 3rd/lua/luac
-3rd/curl-7.64.1/*
+3rd/curl-7.64.1
 /cservice
 /luaclib
 *.po
