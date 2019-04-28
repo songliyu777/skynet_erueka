@@ -8,6 +8,7 @@ local byte = string.byte
 local type = type
 local null = nil
 
+local webclient
 
 local ok, new_tab = pcall(require, "table.new")
 if not ok then
@@ -48,13 +49,18 @@ local function request(eurekaclient, method, path, query, body)
         end
         headers['Content-Type'] = 'application/json'
     end
-    local httpc = eurekaclient.httpc
-    if not httpc then
-        return nil, 'not initialized'
+    -- local httpc = eurekaclient.httpc
+    -- if not httpc then
+    --     return nil, 'not initialized'
+    -- end
+    -- local statuscode, body = httpc.request(method, host, path, false, headers, body)
+    -- return statuscode, body
+    local url = host..path
+    local isok, response, info = skynet.call(webclient, "lua", "request", method, url, headers, nil, body, false)
+    if isok then 
+        return info.response_code, response
     end
-
-    local statuscode, body = httpc.request(method, host, path, false, headers, body)
-	return statuscode, body
+    return nil, response
 end
 
 ---@return _M|err
@@ -79,10 +85,9 @@ function _M.new(self, host, port, uri, auth)
             ))
         )
     end
-    -- local httpc = httpc
-    -- if not httpc then
-    --     return nil, 'failed to init http client instance : ' .. err
-    -- end
+
+    webclient = skynet.newservice("webclient")
+
     return setmetatable({
         host = host,
         port = port,
@@ -318,7 +323,7 @@ function _M.register(self, appid, instancedata)
     if not instancedata or 'table' ~= type(instancedata) then
         return nil, 'instancedata required'
     end
-    local statuscode, body= request(self, 'POST', '/apps/' .. appid, nil, instancedata)
+    local statuscode, body = request(self, 'POST', '/apps/' .. appid, nil, instancedata)
     if not statuscode then
         return nil, body
     end
