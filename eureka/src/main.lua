@@ -12,11 +12,11 @@ skynet.start(function()
 	-- skynet.newservice("simpledb")
 	local watchdog = skynet.newservice("watchdog")
 	skynet.call(watchdog, "lua", "start", {
-		port = 7000,
+		port = 6000,
 		maxclient = max_client,
 		nodelay = true,
 	})
-	skynet.error("Watchdog listen on", 7000)
+	skynet.error("Watchdog listen on", 6000)
 	local httpservice = skynet.newservice("httpservice")
 	local eureka = skynet.newservice("eureka")
 	skynet.exit()

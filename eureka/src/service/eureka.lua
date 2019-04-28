@@ -8,8 +8,8 @@ local port = skynet.getenv("http_port") or 80
 local eureka_host = skynet.getenv("eureka_host") or "localhost"
 local eureka_port = skynet.getenv("eureka_port") or 17000
 
-instance:setInstanceId(("%s:%s:%s:%d"):format(ip, port, name:upper(), skynet.gethostid()))
-instance:setHostName(ip):setApp(name:upper()):setStatus("UP")
+instance:setInstanceId(("%s:%s:%s:%d"):format(ip, port, name:lower(), skynet.gethostid()))
+instance:setHostName(ip):setApp(name:lower()):setStatus("UP")
 instance:setIpAddr(ip):setVipAddress(name):setSecureVipAddress(name)
 instance:setPort(port, true):setSecurePort(443, false)
 instance:setHomePageUrl("http://" .. ip .. ":" .. port)

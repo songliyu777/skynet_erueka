@@ -18,6 +18,7 @@ _register = function()
         if not ok then
             logger.error(("can not register instance %s : %s"):format(instance.instance.instanceId, err))
         else
+            _getapp(instance.instance.app)
             return skynet.timeout(timeval, _heartbeat)
         end
     end
@@ -25,7 +26,6 @@ _register = function()
 end
 
 _heartbeat = function()
-    local eurekaclient = eurekaclient
     local ok, err = eurekaclient:heartBeat(instance.instance.app, instance.instance.instanceId)
     if not ok then
         logger.error(("failed to _heartbeat instance %s : %s"):format(instance.instance.instanceId, err))
@@ -33,6 +33,16 @@ _heartbeat = function()
         _register()
     else
         skynet.timeout(timeval, _heartbeat)
+        _getapp("SKYNET-EUREKA-CLIENT")
+    end
+end
+
+_getapp = function(appid)
+    local ok, err = eurekaclient:getApp(appid)
+    if not ok then
+        logger.error(("failed to _getapp %s : %s"):format(appid, err))
+    else
+        print(err);
     end
 end
 

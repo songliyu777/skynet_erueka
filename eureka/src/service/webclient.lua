@@ -54,7 +54,7 @@ end
 -- }
 -- @usage skynet.call(webclient, "lua", "request", "http://www.dpull.com")
 -- @usage skynet.send(webclient, "lua", "request", "http://www.dpull.com", nil, nil, true)
-local function request(method, url, headers, get, post, no_reply)
+local function request(method, url, headers, get, post)
     if get then
         local i = 0
         for k, v in pairs(get) do
