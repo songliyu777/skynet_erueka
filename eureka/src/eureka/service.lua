@@ -75,6 +75,13 @@ function _M.run(self, _eurekaserver, _instance)
                 self:register_remote_services(value)
             end
             _register()
+            skynet.dispatch(
+                "lua",
+                function(session, source, cmd, subcmd, ...)
+                    local f = assert(_M[cmd])
+                    skynet.ret(skynet.pack(f(subcmd, ...)))
+                end
+            )
         end
     )
 end

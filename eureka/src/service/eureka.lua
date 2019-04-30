@@ -7,7 +7,7 @@ local name = skynet.getenv("register_name") or "skynet-eureka-client"
 local port = skynet.getenv("http_port") or 80
 local eureka_host = skynet.getenv("eureka_host") or "localhost"
 local eureka_port = skynet.getenv("eureka_port") or 17000
-local remote_services = skynet.getenv("remote_services") or {}
+local remote_services = skynet.getenv("remote_services") or ""
 
 instance:setInstanceId(("%s:%s:%s:%d"):format(ip, port, name:lower(), skynet.gethostid()))
 instance:setHostName(ip):setApp(name:lower()):setStatus("UP")
@@ -25,7 +25,7 @@ service:run(
         host = eureka_host,
         port = eureka_port,
         uri = "/eureka",
-        timeval = 300 ,
+        timeval = 3000 ,
         services = remote_services
         -- auth = {
         --     username = "",
