@@ -149,7 +149,6 @@ function tcpserver.start(handler)
 	skynet.start(function()
 		skynet.error("tcpservice start");
 		skynet.dispatch("lua", function (_, address, cmd, ...)
-			print("cmd:", address, cmd, ...)
 			local f = CMD[cmd]
 			if f then
 				skynet.ret(skynet.pack(f(address, ...)))
