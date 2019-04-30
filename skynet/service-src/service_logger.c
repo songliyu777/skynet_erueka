@@ -5,15 +5,17 @@
 #include <stdint.h>
 #include <string.h>
 
-struct logger {
-	FILE * handle;
-	char * filename;
+struct logger
+{
+	FILE *handle;
+	char *filename;
 	int close;
 };
 
 struct logger *
-logger_create(void) {
-	struct logger * inst = skynet_malloc(sizeof(*inst));
+logger_create(void)
+{
+	struct logger *inst = skynet_malloc(sizeof(*inst));
 	inst->handle = NULL;
 	inst->close = 0;
 	inst->filename = NULL;
@@ -21,9 +23,10 @@ logger_create(void) {
 	return inst;
 }
 
-void
-logger_release(struct logger * inst) {
-	if (inst->close) {
+void logger_release(struct logger *inst)
+{
+	if (inst->close)
+	{
 		fclose(inst->handle);
 	}
 	skynet_free(inst->filename);
@@ -49,26 +52,29 @@ logger_release(struct logger * inst) {
 // echo -e "\033[47;30m 白底黑字 \033[0m"
 
 static int
-logger_cb(struct skynet_context * context, void *ud, int type, int session, uint32_t source, const void * msg, size_t sz) {
-	struct logger * inst = ud;
-	switch (type) {
+logger_cb(struct skynet_context *context, void *ud, int type, int session, uint32_t source, const void *msg, size_t sz)
+{
+	struct logger *inst = ud;
+	switch (type)
+	{
 	case PTYPE_SYSTEM:
-		if (inst->filename) {
+		if (inst->filename)
+		{
 			inst->handle = freopen(inst->filename, "a", inst->handle);
 		}
 		break;
 	case PTYPE_TEXT:
-		if(*(char *)msg == 'I')
+		if (sz > 1 && *(char *)msg == 'I' && *((char *)msg + 1) == '[')
 		{
 			//绿色
 			fprintf(inst->handle, "\033[32m");
 		}
-		else if(*(char *)msg == 'W')
+		else if (sz > 1 && *(char *)msg == 'W' && *((char *)msg + 1) == '[')
 		{
 			//黄色
 			fprintf(inst->handle, "\033[33m");
 		}
-		else if(*(char *)msg == 'E')
+		else if (sz > 1 && *(char *)msg == 'E' && *((char *)msg + 1) == '[')
 		{
 			//红色
 			fprintf(inst->handle, "\033[31m");
@@ -78,8 +84,8 @@ logger_cb(struct skynet_context * context, void *ud, int type, int session, uint
 			//白色
 			fprintf(inst->handle, "\033[37m");
 		}
-		fprintf(inst->handle, "[:%08x] ",source);
-		fwrite(msg, sz , 1, inst->handle);
+		fprintf(inst->handle, "[:%08x] ", source);
+		fwrite(msg, sz, 1, inst->handle);
 		fprintf(inst->handle, "\033[0m\n");
 		fflush(inst->handle);
 		break;
@@ -88,20 +94,25 @@ logger_cb(struct skynet_context * context, void *ud, int type, int session, uint
 	return 0;
 }
 
-int
-logger_init(struct logger * inst, struct skynet_context *ctx, const char * parm) {
-	if (parm) {
-		inst->handle = fopen(parm,"w");
-		if (inst->handle == NULL) {
+int logger_init(struct logger *inst, struct skynet_context *ctx, const char *parm)
+{
+	if (parm)
+	{
+		inst->handle = fopen(parm, "w");
+		if (inst->handle == NULL)
+		{
 			return 1;
 		}
-		inst->filename = skynet_malloc(strlen(parm)+1);
+		inst->filename = skynet_malloc(strlen(parm) + 1);
 		strcpy(inst->filename, parm);
 		inst->close = 1;
-	} else {
+	}
+	else
+	{
 		inst->handle = stdout;
 	}
-	if (inst->handle) {
+	if (inst->handle)
+	{
 		skynet_callback(ctx, inst, logger_cb);
 		return 0;
 	}
