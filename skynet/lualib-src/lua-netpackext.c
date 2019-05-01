@@ -271,12 +271,16 @@ push_more(lua_State *L, int fd, uint8_t *buffer, int size)
 	protocolhead head = toprotocolhead(buffer);
 	//需要加入检测长度
 	int pack_size = head.length + sizeof(protocolhead);
+	if (head.length > 0x100000)
+	{
+		return head.length;
+	}
 	if (size < pack_size)
 	{
 		struct uncomplete *uc = save_uncomplete(L, fd);
 		uc->read = size;
 		memcpy(&uc->protocol.head, buffer, sizeof(protocolhead));
-		if(head.length)
+		if (head.length)
 		{
 			uc->protocol.protobuf = skynet_malloc(head.length);
 		}
@@ -340,6 +344,11 @@ filter_data_(lua_State *L, int fd, uint8_t *buffer, int size)
 		setbuffer_session((uint8_t *)&uc->protocol.head, fd);
 		protocolhead head = toprotocolhead((uint8_t *)&uc->protocol.head);
 		int pack_size = head.length + sizeof(protocolhead);
+		if (head.length > 0x100000)
+		{
+			skynet_free(uc);
+			return luaL_error(L, "Invalid size (too long) of body : %d", head.length);
+		}
 		if (head.length && !uc->protocol.protobuf)
 		{
 			uc->protocol.protobuf = skynet_malloc(head.length);
@@ -360,7 +369,7 @@ filter_data_(lua_State *L, int fd, uint8_t *buffer, int size)
 			lua_pushinteger(L, fd);
 			uint8_t *result = skynet_malloc(pack_size);
 			memcpy(result, (uint8_t *)&uc->protocol.head, sizeof(protocolhead));
-			if(head.length)
+			if (head.length)
 			{
 				memcpy(result + sizeof(protocolhead), uc->protocol.protobuf, head.length);
 			}
@@ -375,9 +384,9 @@ filter_data_(lua_State *L, int fd, uint8_t *buffer, int size)
 		buffer += pack_size;
 		size -= pack_size;
 		int ret = push_more(L, fd, buffer, size);
-		if (ret)
+		if (ret > 1)
 		{
-			//加入包大小异常判断
+			return luaL_error(L, "Invalid size (too long) of body : %d", (int)ret);
 		}
 		lua_pushvalue(L, lua_upvalueindex(TYPE_MORE));
 		return 2;
@@ -396,6 +405,11 @@ filter_data_(lua_State *L, int fd, uint8_t *buffer, int size)
 		setbuffer_session(buffer, fd);
 		protocolhead head = toprotocolhead(buffer);
 		//需要加入检测长度
+		if (head.length > 0x100000)
+		{
+			skynet_free(uc);
+			return luaL_error(L, "Invalid size (too long) of body : %d", head.length);
+		}
 		int pack_size = head.length + sizeof(protocolhead);
 		if (size == pack_size)
 		{
@@ -422,9 +436,9 @@ filter_data_(lua_State *L, int fd, uint8_t *buffer, int size)
 		buffer += pack_size;
 		size -= pack_size;
 		int ret = push_more(L, fd, buffer, size);
-		if (ret)
+		if (ret > 1)
 		{
-			//加入包大小异常判断
+			return luaL_error(L, "Invalid size (too long) of body : %d", (int)ret);
 		}
 		lua_pushvalue(L, lua_upvalueindex(TYPE_MORE));
 		return 2;
@@ -581,11 +595,12 @@ lpack(lua_State *L)
 {
 	size_t len;
 	const char *ptr = tolstring(L, &len, 1);
-	if (len >= 0x100000)
+	if (len >= 0x100016) //head 22 byte 1 mb body
 	{
 		return luaL_error(L, "Invalid size (too long) of data : %d", (int)len);
 	}
 
+	//这里可能需要修改，目前没用到这个函数
 	uint8_t *buffer = skynet_malloc(len + 2);
 	write_size(buffer, len);
 	memcpy(buffer + 2, ptr, len);
