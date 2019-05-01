@@ -8,24 +8,26 @@ local stringtool = require "tools.stringtool"
 local service_name = ...
 local cmd = {}
 
-local feignclients = {} --client = { server = {}, service = {1,2,3}}
-local max_client = 1;
+local feignclients = {} --feignclients[server.instanceId] = client = { server = {}, service = {1,2,3}}
+local max_client = 1
+local balance_index = 1
 
 function cmd.update(data)
     local root = json.decode(data)
     local instances = root.application.instance
     local servers = {}
-    --更新现有的
+    --更新现有的服务
     for index, value in ipairs(instances) do
         local server = {}
         server.instanceId = value.instanceId
         server.ipAddr = value.ipAddr
-        server.port = value.port["$"]
+        server.port = tonumber(value.port["$"])
         servers[server.instanceId] = server
         local client = feignclients[server.instanceId]
         if client ~= nil then
             client.server = server
         else
+            logger.debug(string.format("add:[%s][%s:%d]", server.instanceId, server.ipAddr, server.port))
             client = {}
             client.server = server
             client.service = {}
@@ -35,10 +37,10 @@ function cmd.update(data)
             feignclients[server.instanceId] = client
         end
     end
-    --移除已经不存在的
+    --移除已经不存在的服务
     for key, value in pairs(feignclients) do
         if servers[key] == nil then
-            print("remove", key, value.server.ipAddr)
+            logger.debug(string.format("remove:[%s][%s:%d]", key, value.server.ipAddr, value.server.port))
             local client = feignclients[key]
             feignclients[key] = nil
             for index, value in ipairs(client.service) do
@@ -46,6 +48,16 @@ function cmd.update(data)
             end
         end
     end
+end
+
+function cmd.getwebclient()
+    for key, value in pairs(feignclients) do
+        local ipAddr = value.server.ipAddr
+        local port = value.server.port
+        local webclient = value.service[balance_index]
+        return webclient, ipAddr, port
+    end
+    return nil
 end
 
 skynet.start(

@@ -5,14 +5,14 @@ local stringtools = require "tools.stringtool"
 
 local eurekaclient, eurekaserver, instance, timeval
 local _getapp, _register, _heartbeat
-local remote_services = {} --{ service_name = ribben_instance}
+local ribbon_services = {} --{ service_name = ribbon_instance}
 
 _getapp = function(appid)
     local ok, err = eurekaclient:getApp(appid)
     if not ok then
         logger.error(("failed to _getapp %s : %s"):format(appid, err))
     else
-        local ribbon = remote_services[appid]
+        local ribbon = ribbon_services[appid]
         if (ribbon == nil) then
             logger.error(("no ribbon instance %s"):format(appid))
         end
@@ -28,7 +28,7 @@ _heartbeat = function()
         _register()
     else
         skynet.timeout(timeval, _heartbeat)
-        for key, value in pairs(remote_services) do
+        for key, value in pairs(ribbon_services) do
             _getapp(key)
         end
     end
@@ -57,11 +57,19 @@ local _M = {
     ["_VERSION"] = "1.0.0"
 }
 
-function _M.register_remote_services(self, service_name)
-    if remote_services[service_name] == nil then
+function _M.register_ribbon_services(self, service_name)
+    if ribbon_services[service_name] == nil then
         logger.info("register remote service:", service_name)
-        remote_services[service_name] = skynet.newservice("eureka/ribbon", service_name)
+        ribbon_services[service_name] = skynet.newservice("eureka/ribbon", service_name)
     end
+end
+
+function _M.getwebclient(self, service_name)
+    local ribbon = ribbon_services[service_name];
+    if ribbon ~= nil then
+        return skynet.call(ribbon, "lua", "getwebclient")
+    end
+    return nil
 end
 
 function _M.run(self, _eurekaserver, _instance)
@@ -72,14 +80,15 @@ function _M.run(self, _eurekaserver, _instance)
         function()
             local services = string.split(eurekaserver.services, ",")
             for index, value in ipairs(services) do
-                self:register_remote_services(value)
+                self:register_ribbon_services(value)
             end
             _register()
             skynet.dispatch(
                 "lua",
                 function(session, source, cmd, subcmd, ...)
                     local f = assert(_M[cmd])
-                    skynet.ret(skynet.pack(f(subcmd, ...)))
+                    print("subcmd", subcmd)
+                    skynet.ret(skynet.pack(f(self, subcmd, ...)))
                 end
             )
         end

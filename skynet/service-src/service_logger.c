@@ -64,7 +64,12 @@ logger_cb(struct skynet_context *context, void *ud, int type, int session, uint3
 		}
 		break;
 	case PTYPE_TEXT:
-		if (sz > 1 && *(char *)msg == 'I' && *((char *)msg + 1) == '[')
+		if (sz > 1 && *(char *)msg == 'D' && *((char *)msg + 1) == '[')
+		{
+			//绿色
+			fprintf(inst->handle, "\033[34m");
+		}
+		else if (sz > 1 && *(char *)msg == 'I' && *((char *)msg + 1) == '[')
 		{
 			//绿色
 			fprintf(inst->handle, "\033[32m");

@@ -3,6 +3,7 @@ local socket = require "skynet.socket"
 local sproto = require "sproto"
 local sprotoloader = require "sprotoloader"
 local pb = require "pb"
+local serviceinvoke = require "serviceinvoke"
 
 local WATCHDOG
 local host
@@ -79,16 +80,20 @@ local Test = {
 function CMD.send_test(msg)
     local h, v, l, c, s, cmd, session = string.unpack(">BBI4HI4HL", msg)
     local send_pack = nil
-    print(h, ":", v, ":", l, ":", c, ":", s, ":", cmd, ":", session)
+    --print(h, ":", v, ":", l, ":", c, ":", s, ":", cmd, ":", session)
     if l > 0 then
         --print(require "pb/serpent".block(protobuf))
         local protobuf = string.unpack(">c" .. l, msg, 23)
         local test_msg = assert(pb.decode("Test", protobuf))
-		print(test_msg.name, ":", test_msg.password)
-		send_pack = string.pack(">BBI4HI4HLc"..l, h, v, l, c, s, cmd, session, protobuf)
+        print(test_msg.name, ":", test_msg.password)
+        send_pack = string.pack(">BBI4HI4HLc" .. l, h, v, l, c, s, cmd, session, protobuf)
     else
         send_pack = string.pack(">BBI4HI4HL", h, v, l, c, s, cmd, session)
     end
+
+    serviceinvoke.requestwebservice("server-logic", "/pb/protocol", send_pack)
+    local webclient, ipAdr, port = skynet.call(".eureka", "lua", "getwebclient", "server-logic")
+    
 
     --local data = assert(pb.encode("test", test))
 
@@ -132,14 +137,14 @@ function CMD.start(conf)
     local server = conf.server
     WATCHDOG = conf.watchdog
     -- slot 1,2 set at main.lua
-    host = sprotoloader.load(1):host "package"
-    send_request = host:attach(sprotoloader.load(2))
-    skynet.fork(function()
-        while true do
-            send_package(send_request "heartbeat")
-            skynet.sleep(500)
-        end
-    end)
+    -- host = sprotoloader.load(1):host "package"
+    -- send_request = host:attach(sprotoloader.load(2))
+    -- skynet.fork(function()
+    --     while true do
+    --         send_package(send_request "heartbeat")
+    --         skynet.sleep(500)
+    --     end
+    -- end)
 
     client_fd = fd
     skynet.call(server, "lua", "forward", fd)

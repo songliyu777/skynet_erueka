@@ -3,6 +3,7 @@ local socket = require "skynet.socket"
 local httpd = require "http.httpd"
 local sockethelper = require "http.sockethelper"
 local urllib = require "http.url"
+local logger = require "logger"
 local table = table
 local string = string
 
@@ -111,11 +112,11 @@ function httpserver.start(conf)
             end
             local balance = 1
             local id = socket.listen(conf.ip, conf.port)
-            skynet.error(string.format("Listen %s web port %d protocol:%s", conf.ip, conf.port, conf.protocol))
+            logger.info(string.format("Httpserver Listen %s port %d protocol:%s", conf.ip, conf.port, conf.protocol))
             socket.start(
                 id,
                 function(id, addr)
-                    skynet.error(string.format("%s connected, pass it to agent :%08x %s", addr, agent[balance], id))
+                    logger.debug(string.format("%s connected, pass it to agent :%08x %s", addr, agent[balance], id))
                     skynet.send(agent[balance], "lua", id)
                     balance = balance + 1
                     if balance > #agent then

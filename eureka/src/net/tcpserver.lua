@@ -1,6 +1,7 @@
 local skynet = require "skynet"
 local netpackext = require "skynet.netpackext"
 local socketdriver = require "skynet.socketdriver"
+local logger = require "logger"
 
 local tcpserver = {}
 
@@ -37,9 +38,9 @@ function tcpserver.start(handler)
 		assert(not socket)
 		local address = conf.address or "0.0.0.0"
 		local port = assert(conf.port)
-		maxclient = conf.maxclient or 1024
+		maxclient = tonumber(conf.maxclient) or 1024
 		nodelay = conf.nodelay
-		skynet.error(string.format("Listen on %s:%d", address, port))
+		logger.info(string.format("Tcpserver Listen on %s:%d", address, port))
 		socket = socketdriver.listen(address, port)
 		socketdriver.start(socket)
 		if handler.open then
@@ -147,7 +148,6 @@ function tcpserver.start(handler)
 	}
 
 	skynet.start(function()
-		skynet.error("tcpservice start");
 		skynet.dispatch("lua", function (_, address, cmd, ...)
 			local f = CMD[cmd]
 			if f then
