@@ -3,7 +3,7 @@ local socket = require "skynet.socket"
 local sproto = require "sproto"
 local sprotoloader = require "sprotoloader"
 local pb = require "pb"
-local serviceinvoke = require "serviceinvoke"
+local invoke = require "service.invoke"
 
 local WATCHDOG
 local host
@@ -91,8 +91,7 @@ function CMD.send_test(msg)
         send_pack = string.pack(">BBI4HI4HL", h, v, l, c, s, cmd, session)
     end
 
-    serviceinvoke.requestwebservice("server-logic", "/pb/protocol", send_pack)
-    local webclient, ipAdr, port = skynet.call(".eureka", "lua", "getwebclient", "server-logic")
+    invoke.requestwebservice("server-logic", "/pb/protocol", send_pack)
     
 
     --local data = assert(pb.encode("test", test))
@@ -134,7 +133,7 @@ skynet.register_protocol {
 
 function CMD.start(conf)
     local fd = conf.client
-    local server = conf.server
+    local service = conf.service
     WATCHDOG = conf.watchdog
     -- slot 1,2 set at main.lua
     -- host = sprotoloader.load(1):host "package"
@@ -147,7 +146,7 @@ function CMD.start(conf)
     -- end)
 
     client_fd = fd
-    skynet.call(server, "lua", "forward", fd)
+    skynet.call(service, "lua", "forward", fd)
 end
 
 function CMD.disconnect()

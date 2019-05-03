@@ -59,7 +59,7 @@ function tcpserver.start(handler)
 		if connection[fd] then
 			handler.message(fd, msg, sz)
 		else
-			skynet.error(string.format("Drop message from fd (%d) : %s", fd, netpackext.tostring(msg,sz)))
+			logger.debug(string.format("Drop message from fd (%d) : %s", fd, netpackext.tostring(msg,sz)))
 		end
 	end
 
@@ -99,6 +99,7 @@ function tcpserver.start(handler)
 		if c ~= nil then
 			connection[fd] = nil
 			client_number = client_number - 1
+			socketdriver.close(fd)
 		end
 	end
 
@@ -116,7 +117,7 @@ function tcpserver.start(handler)
 	function MSG.error(fd, msg)
 		if fd == socket then
 			socketdriver.close(fd)
-			skynet.error("tcpserver close listen socket, accpet error:",msg)
+			logger.error("tcpserver close listen socket, accpet error:", msg)
 		else
 			if handler.error then
 				handler.error(fd, msg)
@@ -136,7 +137,6 @@ function tcpserver.start(handler)
 		name = "tcpserver",
 		id = skynet.PTYPE_SOCKET,	-- PTYPE_SOCKET = 6
 		unpack = function ( msg, sz )
-			--这里要处理下如果包超大小了返回错误码处理
 			return netpackext.filter( queue, msg, sz)
 		end,
 		dispatch = function (_, _, q, type, ...)

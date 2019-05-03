@@ -1,11 +1,9 @@
 local skynet = require "skynet"
 
-local requestwebservice
+---@type invoke
+local invoke = {}
 
----@type serviceinvoke
-local serviceinvoke = {}
-
-serviceinvoke.requestwebservice = function(service_name, method, api, cmd, session, protobuf)
+invoke.requestwebservice = function(service_name, method, api, cmd, session, protobuf)
     local webclient, ipAdr, port = skynet.call(".eureka", "lua", "getwebclient", "server-logic")
     if webclient ~= nil then
         local host = ("http://%s:%d/%s"):format(ipAdr, port, api)
@@ -13,4 +11,4 @@ serviceinvoke.requestwebservice = function(service_name, method, api, cmd, sessi
     end
 end
 
-return serviceinvoke
+return invoke

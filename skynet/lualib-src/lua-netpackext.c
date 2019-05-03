@@ -347,7 +347,10 @@ filter_data_(lua_State *L, int fd, uint8_t *buffer, int size)
 		if (head.length > 0x100000)
 		{
 			skynet_free(uc);
-			return luaL_error(L, "Invalid size (too long) of body : %d", head.length);
+			lua_pushvalue(L, lua_upvalueindex(TYPE_ERROR));
+			lua_pushinteger(L, fd);
+			lua_pushlstring(L, "Invalid size (too long) of body", 32);
+			return 4;
 		}
 		if (head.length && !uc->protocol.protobuf)
 		{
@@ -386,7 +389,10 @@ filter_data_(lua_State *L, int fd, uint8_t *buffer, int size)
 		int ret = push_more(L, fd, buffer, size);
 		if (ret > 1)
 		{
-			return luaL_error(L, "Invalid size (too long) of body : %d", (int)ret);
+			lua_pushvalue(L, lua_upvalueindex(TYPE_ERROR));
+			lua_pushinteger(L, fd);
+			lua_pushlstring(L, "Invalid size (too long) of body", 32);
+			return 4;
 		}
 		lua_pushvalue(L, lua_upvalueindex(TYPE_MORE));
 		return 2;
@@ -407,8 +413,10 @@ filter_data_(lua_State *L, int fd, uint8_t *buffer, int size)
 		//需要加入检测长度
 		if (head.length > 0x100000)
 		{
-			skynet_free(uc);
-			return luaL_error(L, "Invalid size (too long) of body : %d", head.length);
+			lua_pushvalue(L, lua_upvalueindex(TYPE_ERROR));
+			lua_pushinteger(L, fd);
+			lua_pushlstring(L, "Invalid size (too long) of body", 32);
+			return 4;
 		}
 		int pack_size = head.length + sizeof(protocolhead);
 		if (size == pack_size)
@@ -438,7 +446,10 @@ filter_data_(lua_State *L, int fd, uint8_t *buffer, int size)
 		int ret = push_more(L, fd, buffer, size);
 		if (ret > 1)
 		{
-			return luaL_error(L, "Invalid size (too long) of body : %d", (int)ret);
+			lua_pushvalue(L, lua_upvalueindex(TYPE_ERROR));
+			lua_pushinteger(L, fd);
+			lua_pushlstring(L, "Invalid size (too long) of body", 32);
+			return 4;
 		}
 		lua_pushvalue(L, lua_upvalueindex(TYPE_MORE));
 		return 2;
