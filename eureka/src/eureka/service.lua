@@ -87,7 +87,6 @@ function _M.run(self, _eurekaserver, _instance)
                 "lua",
                 function(session, source, cmd, subcmd, ...)
                     local f = assert(_M[cmd])
-                    print("subcmd", subcmd)
                     skynet.ret(skynet.pack(f(self, subcmd, ...)))
                 end
             )
