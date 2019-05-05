@@ -93,14 +93,14 @@ function CMD.send_test(msg)
         --请求微服务
         local code, response = invoke.requestwebservice("POST", "server-logic", "/pb/protocol", 1, session, bytetable)
         if code then
-            logger.debug(code,":", string.coventable(response))
+            --logger.debug(code,":", string.coventable(response))
             --local head, version, length, chechsum, serial, cmd, session, protobuf = netpack.unpack(response)
             --获取unpack处理
         else
             logger.error(response)
         end
     else
-        send_pack = string.pack(">BBI4HI4HL", h, v, l, c, s, cmd, session)
+        send_pack = netpack.pack(serial, cmd, session, protobuf)
     end
 
 
