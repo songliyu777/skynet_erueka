@@ -62,7 +62,6 @@ function httpserver.newagent(protocol, handler)
                     end
                     -- limit request body size to 8192 (you can pass nil to unlimit)
                     local code, url, method, headers, body = httpd.read_request(interface.read, 8192)
-                    print(method..url)
                     if code then
                         if code ~= 200 then
                             response(id, interface.write, code)
