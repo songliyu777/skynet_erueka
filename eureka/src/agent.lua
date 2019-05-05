@@ -4,6 +4,8 @@ local sproto = require "sproto"
 local sprotoloader = require "sprotoloader"
 local pb = require "pb"
 local invoke = require "service.invoke"
+local logger = require "logger"
+local netpack = require "net.netpack"
 require "tools/stringtool"
 
 local WATCHDOG
@@ -79,19 +81,24 @@ local Test = {
 }
 
 function CMD.send_test(msg)
-    local h, v, l, c, s, cmd, session = string.unpack(">BBI4HI4HL", msg)
+    local head, version, length, chechsum, serial, cmd, session, protobuf = netpack.unpack(msg);
     local send_pack = nil
     --print(h, ":", v, ":", l, ":", c, ":", s, ":", cmd, ":", session)
-    if l > 0 then
+    if protobuf then
         --print(require "pb/serpent".block(protobuf))
-        local protobuf = string.unpack(">c" .. l, msg, 23)
-        print(string.coventable(protobuf))
         local test_msg = assert(pb.decode("Test", protobuf))
-        print(string.coventable(test_msg))
         --print(test_msg.name, ":", test_msg.password)
-        send_pack = string.pack(">BBI4HI4HLc" .. l, h, v, l, c, s, cmd, session, protobuf)
+        send_pack = netpack.pack(serial, cmd, session, protobuf)
         local bytetable = pb.encode("Test", test_msg)
-        invoke.requestwebservice("POST", "server-logic", "/pb/protocol", 1, session, bytetable)
+        --请求微服务
+        local code, response = invoke.requestwebservice("POST", "server-logic", "/pb/protocol", 1, session, bytetable)
+        if code then
+            logger.debug(code,":", string.coventable(response))
+            --local head, version, length, chechsum, serial, cmd, session, protobuf = netpack.unpack(response)
+            --获取unpack处理
+        else
+            logger.error(response)
+        end
     else
         send_pack = string.pack(">BBI4HI4HL", h, v, l, c, s, cmd, session)
     end

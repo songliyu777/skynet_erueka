@@ -25,7 +25,7 @@ service:run(
         host = eureka_host,
         port = eureka_port,
         uri = "/eureka",
-        timeval = 3000 ,
+        timeval = 300 ,
         services = remote_services
         -- auth = {
         --     username = "",

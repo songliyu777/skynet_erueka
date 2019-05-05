@@ -54,7 +54,11 @@ function cmd.getwebclient()
     for key, value in pairs(feignclients) do
         local ipAddr = value.server.ipAddr
         local port = value.server.port
+        if balance_index > #value.service then
+            balance_index = 1
+        end
         local webclient = value.service[balance_index]
+        balance_index = balance_index + 1
         return webclient, ipAddr, port
     end
     return nil

@@ -95,6 +95,7 @@ function CMD.accept(source, fd)
 end
 
 function CMD.kick(source, fd)
+	print("kick")
 	tcpserver.closeclient(fd)
 end
 
